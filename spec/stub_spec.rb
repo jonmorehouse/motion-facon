@@ -6,6 +6,7 @@ describe "A method stub" do
       end
 
       def existing_instance_method
+        @called = true
         :original_value
       end
     end
@@ -93,6 +94,34 @@ describe "A method stub" do
   it "should ignore when the stubbed method is never called" do
     true.should == true
   end
+
+  it "should call the original method when #and_invoke_original is called" do
+    @object.define_singleton_method(:invoke_original_method) do
+      true.should == true
+    end
+    @object.stub!(:invoke_original_method).and_invoke_original
+    @object.invoke_original_method
+  end
+
+  it "should pass the arguments to the original method when #and_invoke_original is called" do
+    @object.define_singleton_method(:invoke_original_method) do |arg1, arg2|
+      arg1.should.equal :arg1
+      arg2.should.equal :arg2
+    end
+    @object.stub!(:invoke_original_method).and_invoke_original
+    @object.invoke_original_method(:arg1, :arg2)
+  end
+
+  it "should call a block on the original method when #and_invoke_original is called" do
+    @object.define_singleton_method(:invoke_original_method) do |cb|
+      cb.call
+    end
+    @object.stub!(:invoke_original_method).and_invoke_original
+    @object.invoke_original_method do 
+      true.should.equal true
+    end
+  end
+
 end
 
 describe "A method stub with arguments" do

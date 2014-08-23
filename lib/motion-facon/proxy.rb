@@ -45,6 +45,7 @@ module Facon
         expectation.invoke_original(@target, munge(method), args, block)
         expectation.invoke(args, block)
       elsif stub = find_matching_method_stub(method, *args)
+        stub.invoke_original(@target, munge(method), args, block)
         stub.invoke([], block)
       elsif expectation = find_almost_matching_expectation(method, *args)
         raise_unexpected_message_args_error(expectation, *args) unless has_negative_expectation?(method)
