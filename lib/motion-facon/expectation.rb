@@ -20,6 +20,7 @@ module Facon
       @method = method
       @method_block = method_block
       @expected_received_count = expected_received_count
+      @invoke_original = false
 
       @argument_expectation = :any
       @exception_to_raise = nil
@@ -52,6 +53,12 @@ module Facon
       @symbol_to_throw = sym
     end
 
+    # sets up the expected method to actually call the real method
+    def and_invoke_original
+      @invoke_original = true
+      self
+    end
+
     def with(*args, &block)
       @method_block = block if block
       @argument_expectation = args
@@ -77,9 +84,16 @@ module Facon
         else
           return_value
         end
+
       ensure
         @actual_received_count += 1
       end
+    end
+
+    def invoke_original(target, method, args, block)
+      return unless @invoke_original
+      args << block unless block.nil?
+      target.send(method, *args)
     end
 
     # Returns true if this expectation has been met.

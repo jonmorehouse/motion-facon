@@ -42,6 +42,7 @@ module Facon
 
     def message_received(method, *args, &block)
       if expectation = find_matching_expectation(method, *args)
+        expectation.invoke_original(@target, munge(method), args, block)
         expectation.invoke(args, block)
       elsif stub = find_matching_method_stub(method, *args)
         stub.invoke([], block)
